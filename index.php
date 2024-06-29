@@ -1,132 +1,134 @@
-<?php include('partials-front/menu.php') ?>
+<!DOCTYPE html>
+<html>
 
-<!-- product sEARCH Section Starts Here -->
-<section class="bg-gray-100 py-16">
-  <div class="container mx-auto">
-    <form action="<?php echo SITEURL ?>product-search.php" method="POST" class="flex justify-center">
-      <input type="search" name="search" placeholder="Search for Product..." required class="px-4 w-96 py-2 border border-gray-300 rounded-l">
-      <input type="submit" name="submit" value="Search" class="px-4 py-2 bg-blue-500 text-white rounded-r hover:bg-blue-600">
-    </form>
-  </div>
-</section>
-<!-- product sEARCH Section Ends Here -->
-<?php
-if (isset($_SESSION['order'])) {
-  echo $_SESSION['order'];
-  unset($_SESSION['order']);
-}
-?>
+<head>
+    <title>Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
 
-<!-- CAtegories Section Starts Here -->
-<section class="py-16">
-  <div class="container mx-auto">
-    <h2 class="text-2xl font-bold text-center mb-8">Explore Products</h2>
+<body>
+
     <?php
-    //create sql to display categories from db
-    $sql = "SELECT * FROM tbl_category WHERE active='Yes' AND featured='Yes' LIMIT 3";
-    //execute the query
-    $res = mysqli_query($conn, $sql);
-    //count rows to check whether the category is available or not\
-    $count = mysqli_num_rows($res);
-
-    if ($count > 0) {
-      //category available
-      while ($row = mysqli_fetch_assoc($res)) {
-        //get the values like id ,title ,image_name
-        $id = $row['id'];
-        $title = $row['title'];
-        $image_name = $row['image_name'];
+    // Database connection code goes here
+    include("../admin/partials/menu.php");
     ?>
 
-        <a href="<?php echo SITEURL ?>category-products.php?category_id=<?php echo $id ?>" class="block mx-auto mb-8 relative group">
-          <div class="bg-gray-900 text-white rounded-lg overflow-hidden">
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="wrapper">
+            <h1 class="text-3xl font-semibold mb-4">DASHBOARD</h1>
+            <br>
             <?php
-            if ($image_name == "") {
-              echo "<div class='text-red-700 p-4'>Image Not Available</div>";
-            } else {
-              //image available
-            ?>
-              <img src="<?php echo SITEURL ?>images/category/<?php echo $image_name; ?>" class="w-full h-64 object-cover">
-            <?php
+            if (isset($_SESSION['login'])) {
+                echo $_SESSION['login'];
+                unset($_SESSION['login']);
             }
             ?>
+            <br>
 
-            <h3 class="absolute inset-0 flex items-center justify-center text-3xl font-bold uppercase group-hover:bg-gray-800 group-hover:bg-opacity-50 transition duration-300"><?php echo $title; ?></h3>
-          </div>
-        </a>
+            <!-- Grid for data -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-gray-100 p-4 rounded-lg text-center">
+                    <?php
+                    $sql = "SELECT * FROM tbl_category";
+                    $res = mysqli_query($conn, $sql);
+                    $count = mysqli_num_rows($res);
+                    ?>
+                    <h1 class="text-2xl font-bold"><?php echo $count ?></h1>
+                    <br>
+                    Categories
+                </div>
+                <div class="bg-gray-100 p-4 rounded-lg text-center">
+                    <?php
+                    $sql2 = "SELECT * FROM tbl_product";
+                    $res2 = mysqli_query($conn, $sql2);
+                    $count2 = mysqli_num_rows($res2);
+                    ?>
+                    <h1 class="text-2xl font-bold"><?php echo $count2 ?></h1>
+                    <br>
+                    Products
+                </div>
+                <div class="bg-gray-100 p-4 rounded-lg text-center">
+                    <?php
+                    $sql3 = "SELECT * FROM tbl_order";
+                    $res3 = mysqli_query($conn, $sql3);
+                    $count3 = mysqli_num_rows($res3);
+                    ?>
+                    <h1 class="text-2xl font-bold"><?php echo $count3 ?></h1>
+                    <br>
+                    Total Orders
+                </div>
+                <div class="bg-gray-100 p-4 rounded-lg text-center">
+                    <?php
+                    $sql4 = "SELECT SUM(total) AS Total FROM tbl_order WHERE status='Delivered'";
+                    $res4 = mysqli_query($conn, $sql4);
+                    $row4 = mysqli_fetch_assoc($res4);
+                    $total_revenue = $row4['Total'];
+                    ?>
+                    <h1 class="text-2xl font-bold"><?php echo '৳' . $total_revenue ?></h1>
+                    <br>
+                    Revenue Generated
+                </div>
+            </div>
 
-    <?php
-      }
-    } else {
-      //category not available
-      echo "<div class='text-red-700'>Category Not Available</div>";
-    }
-    ?>
-  </div>
-  <p class="text-center mt-8">
-    <a href="<?php echo SITEURL; ?>categories.php" class="text-blue-500 hover:text-blue-600">See All Categories</a>
-  </p>
-</section>
-<!-- Categories Section Ends Here -->
-
-<!-- product MEnu Section Starts Here -->
-<section class="bg-gray-100 py-16">
-  <div class="container mx-auto">
-    <h2 class="text-2xl font-bold text-center mb-8">Product Menu</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      <?php
-      //getting products from db that are active and featured
-      $sql2 = "SELECT * FROM tbl_product WHERE active='Yes'AND featured='Yes' LIMIT 6";
-      $res2 = mysqli_query($conn, $sql2);
-      $count2 = mysqli_num_rows($res);
-
-      if ($count2 > 0) {
-        //product available
-        while ($row2 = mysqli_fetch_assoc($res2)) {
-          $id = $row2['id'];
-          $title = $row2['title'];
-          $price = $row2['price'];
-          $description = $row2['description'];
-          $image_name = $row2['image_name'];
-      ?>
-          <div class="bg-white rounded-lg overflow-hidden shadow-md">
-            <a href="<?php echo SITEURL ?>product-details.php?product_id=<?php echo $id ?>">
-              <div class="relative">
-                <?php
-                if ($image_name == "") {
-                  echo "<div class='text-red-700 p-4'>Image Not Available</div>";
-                } else {
-                ?>
-                  <img src="<?php echo SITEURL; ?>images/product/<?php echo $image_name ?>" class="w-full h-48 object-cover">
-                <?php
-                }
-                ?>
-              </div>
-              <div class="p-4">
-                <h4 class="text-xl font-bold mb-2"><?php echo $title ?></h4>
-                <p class="text-gray-600 mb-4">৳ <?php echo $price ?></p>
-                <p class="text-gray-700 mb-4">
-                  <?php echo $description ?>
-                </p>
-                <a href="<?php echo SITEURL ?>order.php?product_id=<?php echo $id ?>" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 hover:text-white">Order Now</a>
-              </div>
-            </a>
-
-          </div>
-      <?php
-        }
-      } else {
-        //product not available
-        echo "<div class='text-red-700'>Product Not Available</div>";
-      }
-      ?>
+            <!-- Chart Container -->
+            <div>
+                <canvas id="myChart"></canvas>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <p class="text-center mt-8">
-    <a href="<?php echo SITEURL; ?>products.php" class="text-blue-500 hover:text-blue-600">See All Products</a>
-  </p>
-</section>
-<!-- product Menu Section Ends Here -->
+    <!-- Footer -->
+    <?php include("../admin/partials/footer.php") ?>
 
-<?php include('partials-front/footer.php'); ?>
+    <!-- Chart.js Script -->
+    <script>
+        // Fetch data from PHP
+        var categories = <?php echo $count; ?>;
+        var products = <?php echo $count2; ?>;
+        var orders = <?php echo $count3; ?>;
+        var revenue = <?php echo $total_revenue; ?>;
+
+        // Create the chart data
+        var data = {
+            labels: ["Categories", "Products", "Orders", "Revenue"],
+            datasets: [{
+                label: "Dashboard Data",
+                data: [categories, products, orders, revenue],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)'
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        // Create the chart configuration
+        var options = {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        };
+
+        // Create the chart
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: data,
+            options: options
+        });
+    </script>
+
+</body>
+
+</html>
